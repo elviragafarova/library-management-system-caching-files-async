@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/your_database
+    url: jdbc:postgresql://localhost:5432/postgres
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -9,12 +9,20 @@ spring:
     hibernate:
       ddl-auto: validate
 
-server:
-  port: 1111
+  liquibase:
+    change-log: classpath:liquibase/db.changelog-master.yaml
+    enabled: true
 
-liquibase:
-  change-log: classpath:liquibase/changes/db.changelog-master.yaml
-  enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+
+server:
+  port: 1133
 
 jwt:
   secret: ${JWT_SECRET}

@@ -17,6 +17,8 @@ import com.example.mslibrarymanagementsystem.repository.LoanRepository;
 import com.example.mslibrarymanagementsystem.repository.MemberRepository;
 import com.example.mslibrarymanagementsystem.specification.BookSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookService {
     private final BookRepository bookRepository;
     private final MemberRepository memberRepository;
@@ -55,7 +58,9 @@ public class BookService {
         return books.map(BookMapper::toResponse);
     }
 
+    @Cacheable(value = "books", key = "#id")
     public BookResponse getBookById(Long id) {
+        log.info("Fetching book with id {} from database", id);
         var book = fetchBookIfExists(id);
         return BookMapper.toResponse(book);
     }
