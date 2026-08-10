@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/changes/004-create-users.yaml
+
+  - include:
+      file: liquibase/changes/001-create-authors.yaml
+
+  - include:
+      file: liquibase/changes/002-create-members.yaml
+
+  - include:
+      file: liquibase/changes/003-create-categories.yaml
+
+  - include:
+      file: liquibase/changes/004-create-books.yaml
+
+  - include:
+      file: liquibase/changes/005-create-loans.yaml
+
+  - include:
+      file: liquibase/changes/006-create-book-categories.yaml
