@@ -7,6 +7,7 @@ import com.example.mslibrarymanagementsystem.dto.request.LoanRequest;
 import com.example.mslibrarymanagementsystem.dto.response.BookResponse;
 import com.example.mslibrarymanagementsystem.exceptions.ErrorResponse;
 import com.example.mslibrarymanagementsystem.service.BookService;
+import com.example.mslibrarymanagementsystem.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,8 +15,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -27,6 +33,7 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
+    private final FileStorageService fileStorageService;
 
     @PostMapping
     @ResponseStatus(CREATED)
@@ -76,6 +83,58 @@ public class BookController {
     })
     public BookResponse getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
+    }
+
+    @PostMapping(value = "/{id}/cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Upload book cover",
+            description = "Uploads a JPG or PNG cover image for a book. Maximum file size is 5MB"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book cover uploaded successfully"),
+            @ApiResponse(
+                    responseCode = "400", description = "Invalid file type or file size",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "Book not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            )
+    })
+    public void uploadBookCover(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        fileStorageService.storeBookCover(id, file);
+    }
+
+    @GetMapping("/{id}/cover")
+    @Operation(
+            summary = "Download book cover",
+            description = "Downloads the cover image of a book"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Book cover downloaded successfully"),
+            @ApiResponse(
+                    responseCode = "404", description = "Book or cover image not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    )
+            )
+    })
+    public ResponseEntity<Resource> downloadBookCover(@PathVariable Long id) {
+        Resource resource = fileStorageService.loadBookCover(id);
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\""
+                )
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 
     @PutMapping("/{bookId}/borrow/{memberId}")
