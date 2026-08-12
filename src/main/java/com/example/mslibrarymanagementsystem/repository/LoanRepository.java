@@ -45,4 +45,9 @@ public interface LoanRepository extends JpaRepository<LoanEntity, Long>, JpaSpec
         FROM LoanEntity l
         """)
     Page<LoanEntity> findAllWithDetails(Pageable pageable);
+
+    List<LoanEntity> findAllByStatusAndDueDateBefore(
+            LoanStatus status,
+            LocalDate date
+    );
 }

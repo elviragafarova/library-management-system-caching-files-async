@@ -14,6 +14,7 @@ import com.example.mslibrarymanagementsystem.repository.LoanRepository;
 import com.example.mslibrarymanagementsystem.repository.MemberRepository;
 import com.example.mslibrarymanagementsystem.specification.LoanSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanService {
     private final LoanRepository loanRepository;
     private final MemberRepository memberRepository;
@@ -114,6 +116,25 @@ public class LoanService {
                 .stream()
                 .map(loanMapper::toResponse)
                 .toList();
+    }
+
+    public int processOverdueLoans() {
+        List<LoanEntity> overdueLoans =
+                loanRepository.findAllByStatusAndDueDateBefore(
+                        LoanStatus.BORROWED,
+                        LocalDate.now()
+                );
+
+        overdueLoans.forEach(loan ->
+                log.warn(
+                        "Overdue loan detected: loanId={}, bookId={}, memberId={}, dueDate={}",
+                        loan.getId(),
+                        loan.getBook().getId(),
+                        loan.getMember().getId(),
+                        loan.getDueDate()
+                )
+        );
+        return overdueLoans.size();
     }
 
     private boolean isLoanReturned(Long loanId) {

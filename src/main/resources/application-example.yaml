@@ -35,3 +35,7 @@ jwt:
 
 file:
   upload-dir: uploads/books
+
+scheduler:
+  overdue-loans:
+    cron: "0 0 0 * * *"
