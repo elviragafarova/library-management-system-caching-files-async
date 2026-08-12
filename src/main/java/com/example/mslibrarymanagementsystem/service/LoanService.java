@@ -32,6 +32,7 @@ public class LoanService {
     private final MemberRepository memberRepository;
     private final BookRepository bookRepository;
     private final LoanMapper loanMapper;
+    private final NotificationService notificationService;
 
     @Transactional
     public LoanResponse createLoan(LoanRequest loanRequest) {
@@ -51,6 +52,10 @@ public class LoanService {
         var loan = loanMapper.toEntity(loanRequest, member, book);
         book.setAvailable(false);
         var savedLoan = loanRepository.save(loan);
+        notificationService.sendLoanNotification(
+                member.getEmail(),
+                book.getTitle()
+        );
         return loanMapper.toResponse(savedLoan);
     }
 
