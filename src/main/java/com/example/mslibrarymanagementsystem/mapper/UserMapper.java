@@ -4,7 +4,7 @@ import com.example.mslibrarymanagementsystem.dto.request.RegisterRequest;
 import com.example.mslibrarymanagementsystem.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
-import static com.example.mslibrarymanagementsystem.enums.Role.ROLE_USER;
+import static com.example.mslibrarymanagementsystem.enums.Role.USER;
 
 @Component
 public class UserMapper {
@@ -14,7 +14,7 @@ public class UserMapper {
                 .name(registerRequest.getName())
                 .surname(registerRequest.getSurname())
                 .phoneNumber(registerRequest.getPhoneNumber())
-                .role(ROLE_USER)
+                .role(USER)
                 .enabled(true)
                 .build();
     }

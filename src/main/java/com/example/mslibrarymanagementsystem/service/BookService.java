@@ -18,6 +18,7 @@ import com.example.mslibrarymanagementsystem.repository.MemberRepository;
 import com.example.mslibrarymanagementsystem.specification.BookSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +66,8 @@ public class BookService {
         return BookMapper.toResponse(book);
     }
 
+    //  Remove cached book data after update
+    @CacheEvict(value = "books", key = "#id")
     public BookResponse updateBook(Long id, BookRequest request) {
         var book = fetchBookIfExists(id);
         var author = fetchAuthorIfExists(request.getAuthorId());
@@ -74,6 +77,7 @@ public class BookService {
         return BookMapper.toResponse(updatedBook);
     }
 
+    @CacheEvict(value = "books", key = "#bookId")
     @Transactional
     public void borrowBook(Long bookId, Long memberId, LoanRequest loanRequest) {
         var book = fetchBookIfExists(bookId);
@@ -92,6 +96,7 @@ public class BookService {
         loanRepository.save(loan);
     }
 
+    @CacheEvict(value = "books", key = "#bookId")
     public void returnBook(Long bookId) {
         var book = fetchBookIfExists(bookId);
         if (book.isAvailable()) {
@@ -103,6 +108,8 @@ public class BookService {
         BookMapper.toResponse(borrowedBook);
     }
 
+    // Remove cached book data before deleting the book
+    @CacheEvict(value = "books", key = "#id")
     public void deleteBook(Long id) {
         var book = fetchBookIfExists(id);
         bookRepository.delete(book);
