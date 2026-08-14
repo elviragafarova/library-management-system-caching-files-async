@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    change-log: classpath:liquibase/db.changelog-master.yaml
+    enabled: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  cache:
+    type: redis
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+server:
+  port: ${SERVER_PORT:1133}
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION}
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:uploads/books}
+
+scheduler:
+  overdue-loans:
+    cron: ${OVERDUE_LOANS_CRON:0 0 0 * * *}
